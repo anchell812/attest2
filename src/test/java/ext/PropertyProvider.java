@@ -1,35 +1,35 @@
 package ext;
 
-import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Properties;
 
 public class PropertyProvider {
-    public static PropertyProvider instance;
+    private static PropertyProvider providerInstance;
+    private Properties properties;
 
-    public Properties properties;
-
-    public PropertyProvider() {
-    }
-
-    public static Properties getProperties(String path) {
-        File propFile = new File(path);
-        Properties properties = new Properties();
-        try {
-            properties.load(new FileReader(propFile));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        return properties;
+    private PropertyProvider() {
     }
 
     public static PropertyProvider getInstance() {
-        if (instance == null) {
-            instance = new PropertyProvider();
+        if (providerInstance == null) {
+            providerInstance = new PropertyProvider();
+            providerInstance.loadProperties();
         }
-        return instance;
+        return providerInstance;
     }
 
+    public Properties getProps() {
+        return properties;
+    }
 
+    private void loadProperties() {
+        properties = new Properties();
+        try {
+            String env = System.getProperty("env", "props");
+            properties.load(new FileReader("src/main/resources/" + env + ".properties"));
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
 }

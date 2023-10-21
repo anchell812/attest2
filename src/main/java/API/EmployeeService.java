@@ -1,27 +1,20 @@
 package API;
 
-import Model.API.EmployeeEntity;
-import Model.API.EmployeeFromAPI;
+import Model.Employee;
 
-import java.io.IOException;
 import java.util.List;
 
-public interface EmployeeService extends Authorizable {
-    List<EmployeeFromAPI> getEmployees(int id) throws IOException;
-    int createEmployee(EmployeeFromAPI employeeFromAPI) throws IOException;
+public interface EmployeeService {
 
-    int createEmployeeEnt(EmployeeEntity employeeEntity) throws IOException;
+    void setURI(String uri);
 
-    int createEmployeeUnauthorized(EmployeeFromAPI employeeFromAPI) throws IOException;
+    Employee getRandomEmployee(int companyId);
 
-    int createEmployeeUnauthorizedEnt(EmployeeEntity employeeEntity) throws IOException;
+    List<Employee> getAll(int companyId);
 
-    void updateEmployeeEnt(int id, EmployeeEntity employeeEntity) throws IOException;
+    Employee getById(int id);
 
-    EmployeeFromAPI getEmployeeById(int id) throws IOException;
+    int create(Employee employee, String token);
 
-
-
-
-
+    Employee update(Employee employee, String token);
 }

@@ -1,16 +1,22 @@
 package DB;
 
-import java.sql.SQLException;
+import Model.CompanyEntity;
+
+import java.util.List;
 
 public interface CompanyRepository {
 
-    int getCompanyId();
+    List<CompanyEntity> getAll();
 
-    void setCompanyId(int companyId);
+    List<CompanyEntity> getAll(boolean isActive);
 
-    int create() throws SQLException;
+    CompanyEntity getLast();
 
-    //int create(String name, String description) throws SQLException;
+    CompanyEntity getById(int id);
 
-    void delete(int id) throws SQLException;
+    int create(String name);
+
+    int create(String name, String description);
+
+    void deleteById(int id);
 }

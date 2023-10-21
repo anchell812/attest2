@@ -1,111 +1,104 @@
 package API;
 
-import Model.API.EmployeeEntity;
-import Model.API.EmployeeFromAPI;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import okhttp3.*;
+import com.github.javafaker.Faker;
+import io.restassured.common.mapper.TypeRef;
+import Model.Employee;
 
-import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import static io.restassured.RestAssured.given;
 
 public class EmployeeServiceImpl implements EmployeeService {
-    private final OkHttpClient CLIENT;
-    private static String BASE_URL;
-    private String PATH = "/employee";
-    private MediaType APPLICATION_JSON = MediaType.parse("application/json; charset=utf-8");
-    private ObjectMapper MAPPER;
+    private static final String PATH = "/employee";
+    private final static String prefix = "AL-";
+    Faker faker = new Faker();
+    private Map<String, String> headers = new HashMap<>();
 
-    private String TOKEN;
+    private String uri = "https://x-clients-be.onrender.com";
 
-
-    public EmployeeServiceImpl(OkHttpClient client, String url) {
-        this.CLIENT = client;
-        BASE_URL = url;
-        MAPPER = new ObjectMapper();
-    }
-
-
-    @Override
-    public List<EmployeeFromAPI> getEmployees(int id) throws IOException {
-        HttpUrl url = HttpUrl
-                .parse(BASE_URL)
-                .newBuilder()
-                .addPathSegments(PATH)
-                .addQueryParameter("company", Integer.toString(id))
-                .build();
-        Request request = new Request.Builder().get().url(url).build();
-        Response response = CLIENT.newCall(request).execute();
-        return MAPPER.readValue(response.body().string(), new TypeReference<>() {
-        });
+    public EmployeeServiceImpl(String uri) {
+        this.uri = uri;
     }
 
     @Override
-    public int createEmployee(EmployeeFromAPI employeeFromAPI) throws IOException {
-        RequestBody body = RequestBody.create(MAPPER.writeValueAsString(employeeFromAPI), APPLICATION_JSON);
-        HttpUrl url = HttpUrl.parse(BASE_URL).newBuilder().addPathSegment(PATH).build();
-        Request request = new Request.Builder().post(body).url(url).addHeader("x-client-token", TOKEN).build();
-        Response response = CLIENT.newCall(request).execute();
-        EmployeeFromAPI employee = MAPPER.readValue(response.body().string(), EmployeeFromAPI.class);
-        return employee.getId();
+    public void setURI(String uri) {
+        this.uri = uri;
     }
 
     @Override
-    public int createEmployeeEnt(EmployeeEntity employeeEntity) throws IOException {
-        RequestBody body = RequestBody.create(MAPPER.writeValueAsString(employeeEntity), APPLICATION_JSON);
-        HttpUrl url = HttpUrl.parse(BASE_URL).newBuilder().addPathSegment(PATH).build();
-        Request request = new Request.Builder().post(body).url(url).addHeader("x-client-token", TOKEN).build();
-        Response response = CLIENT.newCall(request).execute();
-        EmployeeEntity employee = MAPPER.readValue(response.body().string(), EmployeeEntity.class);
-        return employee.getId();
+    public Employee getRandomEmployee(int companyId) {
+        int id = 0;
+        String firstName = prefix + faker.name().firstName();
+        String lastName = faker.name().lastName();
+        String email = faker.internet().emailAddress();
+        String url = faker.internet().url();
+        String phone = String.valueOf(faker.number().digits(10));
+        String birthDate = faker.date().birthday().toString();
+        return new Employee(id, firstName, lastName, companyId, email, url, phone, birthDate, true);
     }
 
     @Override
-    public int createEmployeeUnauthorized(EmployeeFromAPI employeeFromAPI) throws IOException {
-        RequestBody body = RequestBody.create(MAPPER.writeValueAsString(employeeFromAPI), APPLICATION_JSON);
-        HttpUrl url = HttpUrl.parse(BASE_URL).newBuilder().addPathSegment(PATH).build();
-        Request request = new Request.Builder().post(body).url(url).build();
-        Response response = CLIENT.newCall(request).execute();
-        EmployeeFromAPI employee = MAPPER.readValue(response.body().string(), EmployeeFromAPI.class);
-        return employee.getId();
-    }
-
-    public int createEmployeeUnauthorizedEnt(EmployeeEntity employeeEntity) throws IOException {
-        RequestBody body = RequestBody.create(MAPPER.writeValueAsString(employeeEntity), APPLICATION_JSON);
-        HttpUrl url = HttpUrl.parse(BASE_URL).newBuilder().addPathSegment(PATH).build();
-        Request request = new Request.Builder().post(body).url(url).build();
-        Response response = CLIENT.newCall(request).execute();
-        EmployeeFromAPI employee = MAPPER.readValue(response.body().string(), EmployeeFromAPI.class);
-        return employee.getId();
-    }
-
-    public EmployeeFromAPI getEmployeeById(int id) throws IOException {
-        HttpUrl url = HttpUrl
-                .parse(BASE_URL)
-                .newBuilder()
-                .addPathSegments(PATH)
-                .addPathSegment(Integer.toString(id))
-                .build();
-        Request request = new Request.Builder().get().url(url).build();
-        Response response = CLIENT.newCall(request).execute();
-        return MAPPER.readValue(response.body().string(), EmployeeFromAPI.class);
+    public List<Employee> getAll(int companyId) {
+        return given()
+                .baseUri(uri + PATH)
+                .header("accept", "application/json")
+                .header("accept", "application/json")
+                .param("company", companyId)
+                .when()
+                .get()
+                .then()
+                .log().ifValidationFails()
+                .extract()
+                .response()
+                .then()
+                .extract().body().as(new TypeRef<List<Employee>>() {
+                });
     }
 
     @Override
-    public void updateEmployeeEnt(int id, EmployeeEntity employeeEntity) throws IOException {
-        HttpUrl url = HttpUrl
-                .parse(BASE_URL)
-                .newBuilder()
-                .addPathSegments(PATH)
-                .addPathSegment(Integer.toString(id))
-                .build();
-        RequestBody body = RequestBody.create(MAPPER.writeValueAsString(employeeEntity), APPLICATION_JSON);
-        Request request = new Request.Builder().patch(body).url(url).addHeader("x-client-token", TOKEN).build();
-        CLIENT.newCall(request).execute();
+    public Employee getById(int id) {
+        return given()
+                .baseUri(uri + PATH + "/" + id)
+                .header("accept", "application/json")
+                .when()
+                .get()
+                .then()
+                .log().ifValidationFails()
+                .statusCode(200)
+                .extract().body().as(Employee.class);
     }
 
+    @Override
+    public int create(Employee employee, String token) {
+        return given()
+                .baseUri(uri + PATH)
+                .log().ifValidationFails()
+                .header("accept", "application/json")
+                .contentType("application/json; charset=utf-8")
+                .header("x-client-token", token)
+                .body(employee)
+                .when()
+                .post()
+                .then()
+                .log().ifValidationFails()
+                .statusCode(201)
+                .contentType("application/json; charset=utf-8")
+                .extract().path("id");
+    }
 
-    public void setToken(String token) {
-        this.TOKEN = token;
+    @Override
+    public Employee update(Employee employee, String token) {
+        return given()
+                .log().ifValidationFails()
+                .contentType("application/json; charset=utf-8")
+                .header("x-client-token", token)
+                .body(employee)
+                .when()
+                .patch(uri + PATH + "/{id}", employee.getId())
+                .then().log().ifValidationFails()
+                .extract()
+                .body().as(Employee.class);
     }
 }

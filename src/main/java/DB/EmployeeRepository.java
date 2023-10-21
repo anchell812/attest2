@@ -1,17 +1,19 @@
 package DB;
 
-import Model.API.EmployeeEntity;
-import Model.DB.EmployeeFromDB;
+import Model.Employee;
+import Model.EmployeeEntity;
 
-import java.sql.SQLException;
 import java.util.List;
 
 public interface EmployeeRepository {
-    List<EmployeeFromDB> getAll(int id) throws SQLException;
 
-    void addEmployee(EmployeeFromDB employee) throws SQLException;
+    List<EmployeeEntity> getAll();
 
-    void addEmployeeEnt(EmployeeEntity employee) throws SQLException;
+    EmployeeEntity getById(int id);
 
-    EmployeeFromDB getById(int id) throws SQLException;
+    int create(Employee employee);
+
+    int update(EmployeeEntity e);
+
+    void deleteById(int id);
 }

@@ -1,31 +1,26 @@
 package API;
 
-import Model.API.User;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import okhttp3.*;
+import io.restassured.filter.log.LogDetail;
 
-import java.io.IOException;
+import static io.restassured.RestAssured.given;
 
 public class AuthorizeServiceImpl implements AuthorizeService {
-    private String BASE_URL;
-    private String PATH = "auth/login";
-    private OkHttpClient client;
-    private ObjectMapper mapper;
-    private MediaType APPLICATION_JSON = MediaType.parse("application/json; charset=utf-8");
 
-    public AuthorizeServiceImpl(OkHttpClient client, String url) {
-        this.BASE_URL = url;
-        this.client = client;
-        this.mapper = new ObjectMapper();
-    }
+    private static final String URI = "https://x-clients-be.onrender.com/auth/login";
 
     @Override
-    public User auth(String username, String password) throws IOException {
-        RequestBody bodyAuth = RequestBody.create("{\"username\":\"" + username + "\",\"password\":\"" + password + "\"}", APPLICATION_JSON);
-        HttpUrl urlAuth = HttpUrl.parse(BASE_URL).newBuilder().addPathSegments(PATH).build();
-        Request request = new Request.Builder().post(bodyAuth).url(urlAuth).build();
-        Response response = client.newCall(request).execute();
-        User user = mapper.readValue(response.body().string(), User.class);
-        return user;
+    public String getToken() {
+        String token = given()
+                .baseUri(URI)
+                .log().ifValidationFails(LogDetail.ALL)
+                .contentType("application/json; charset=utf-8")
+                .body("{\"username\": \"flora\", \"password\": \"nature-fairy\"}")
+                .when()
+                .post()
+                .then()
+                .log().ifValidationFails()
+                .statusCode(201)
+                .extract().path("userToken");
+        return token;
     }
 }
