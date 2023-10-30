@@ -4,7 +4,6 @@ import API.CompanyService;
 import Model.Company;
 import Model.CompanyEntity;
 import com.github.javafaker.Faker;
-import ext.*;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import API.AuthorizeServiceImpl;
@@ -42,7 +41,7 @@ public class XClientsFinalTest {
     static Faker faker = new Faker();
     private static int companyId;
     private static int employeeId;
-    Properties properties = PropertyProvider.getInstance().getProps();
+    //Properties properties = PropertyProvider.getInstance().getProps();
     private EmployeeService employeeServiceImp = new EmployeeServiceImpl();
     private String token = new AuthorizeServiceImpl().getToken();
 
