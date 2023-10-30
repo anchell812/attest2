@@ -1,10 +1,7 @@
 package Model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 import java.sql.Date;
 import java.sql.Timestamp;
@@ -39,8 +36,18 @@ public class EmployeeEntity {
     private Date birthdate;
     @Column(name = "company_id", nullable = false)
     private int companyId;
+    @ManyToOne(targetEntity = CompanyEntity.class)
+    @JoinColumn(name = "company_id")
+    private CompanyEntity company;
 
     public EmployeeEntity() {
+    }
+    public CompanyEntity getCompany() {
+        return company;
+    }
+
+    public void setCompany(CompanyEntity company) {
+        this.company = company;
     }
 
     public int getId() {

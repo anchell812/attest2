@@ -121,9 +121,9 @@ public class Employee {
         return isActive;
     }
 
-//    public void setActive(boolean active) {
-//        isActive = active;
-//    }
+    public void setActive(boolean active) {
+        isActive = active;
+    }
 
     @Override
     public boolean equals(Object o) {

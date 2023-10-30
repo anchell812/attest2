@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface EmployeeService {
 
-    void setURI(String uri);
+    //void setURI(String uri);
 
     Employee getRandomEmployee(int companyId);
 

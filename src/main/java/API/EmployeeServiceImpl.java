@@ -11,21 +11,21 @@ import java.util.Map;
 import static io.restassured.RestAssured.given;
 
 public class EmployeeServiceImpl implements EmployeeService {
-    private static final String PATH = "/employee";
-    private final static String prefix = "AL-";
+    private static final String path = "/employee";
+    private final static String prefix = "AK-";
     Faker faker = new Faker();
     private Map<String, String> headers = new HashMap<>();
 
     private String uri = "https://x-clients-be.onrender.com";
 
-    public EmployeeServiceImpl(String uri) {
-        this.uri = uri;
-    }
-
-    @Override
-    public void setURI(String uri) {
-        this.uri = uri;
-    }
+//    public EmployeeServiceImpl(String uri) {
+//        this.uri = uri;
+//    }
+//
+//    @Override
+//    public void setURI(String uri) {
+//        this.uri = uri;
+//    }
 
     @Override
     public Employee getRandomEmployee(int companyId) {
@@ -36,14 +36,13 @@ public class EmployeeServiceImpl implements EmployeeService {
         String url = faker.internet().url();
         String phone = String.valueOf(faker.number().digits(10));
         String birthDate = faker.date().birthday().toString();
-        return new Employee(id, firstName, lastName, companyId, email, url, phone, birthDate, true);
+        return new Employee(id, firstName, lastName, companyId, email, url, phone, birthDate, false);
     }
 
     @Override
     public List<Employee> getAll(int companyId) {
         return given()
-                .baseUri(uri + PATH)
-                .header("accept", "application/json")
+                .baseUri(uri + path)
                 .header("accept", "application/json")
                 .param("company", companyId)
                 .when()
@@ -60,7 +59,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public Employee getById(int id) {
         return given()
-                .baseUri(uri + PATH + "/" + id)
+                .baseUri(uri + path + "/" + id)
                 .header("accept", "application/json")
                 .when()
                 .get()
@@ -73,7 +72,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public int create(Employee employee, String token) {
         return given()
-                .baseUri(uri + PATH)
+                .baseUri(uri + path)
                 .log().ifValidationFails()
                 .header("accept", "application/json")
                 .contentType("application/json; charset=utf-8")
@@ -96,7 +95,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                 .header("x-client-token", token)
                 .body(employee)
                 .when()
-                .patch(uri + PATH + "/{id}", employee.getId())
+                .patch(uri + path + "/{id}", employee.getId())
                 .then().log().ifValidationFails()
                 .extract()
                 .body().as(Employee.class);

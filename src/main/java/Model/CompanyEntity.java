@@ -1,10 +1,8 @@
 package Model;
 
+import antlr.collections.List;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 import java.sql.Timestamp;
 import java.util.Objects;
@@ -32,18 +30,11 @@ public class CompanyEntity {
     public CompanyEntity() {
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof CompanyEntity that)) return false;
-        return isActive() == that.isActive() && Objects.equals(getId(), that.getId()) && Objects.equals(getCreateDateTime(), that.getCreateDateTime()) && Objects.equals(getChangedTimestamp(), that.getChangedTimestamp()) && Objects.equals(getName(), that.getName()) && Objects.equals(getDescription(), that.getDescription()) && Objects.equals(getDeletedAt(), that.getDeletedAt());
-    }
+    public List<EmployeeEntity> getEmployees() {
+        return employees;}
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(getId(), isActive(), getCreateDateTime(), getChangedTimestamp(), getName(), getDescription(), getDeletedAt());
-    }
-
+    public void setEmployees(List<EmployeeEntity> employees) {
+        this.employees = employees;}
     public Integer getId() {
         return id;
     }
@@ -98,5 +89,17 @@ public class CompanyEntity {
 
     public void setDeletedAt(Timestamp deletedAt) {
         this.deletedAt = deletedAt;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof CompanyEntity that)) return false;
+        return isActive() == that.isActive() && Objects.equals(getId(), that.getId()) && Objects.equals(getCreateDateTime(), that.getCreateDateTime()) && Objects.equals(getChangedTimestamp(), that.getChangedTimestamp()) && Objects.equals(getName(), that.getName()) && Objects.equals(getDescription(), that.getDescription()) && Objects.equals(getDeletedAt(), that.getDeletedAt());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId(), isActive(), getCreateDateTime(), getChangedTimestamp(), getName(), getDescription(), getDeletedAt());
     }
 }
